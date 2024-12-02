@@ -40,6 +40,7 @@ const scales = {
 // State variables
 let currentScale = scales.major;
 let tempo = 120;
+let audioStarted = false; // Track if AudioContext has been started
 
 // Update tempo display and handle tempo changes
 const tempoSlider = document.getElementById("tempo-slider");
@@ -51,6 +52,7 @@ tempoSlider.addEventListener("input", (e) => {
 
 // Circular waveform visualization
 function visualize() {
+    if (!audioStarted) return; // Wait until AudioContext is active
     requestAnimationFrame(visualize);
 
     // Get waveform data from the analyser
@@ -90,10 +92,7 @@ function map(value, inMin, inMax, outMin, outMax) {
 
 // Play a note
 function playNote(note) {
-    if (Tone.context.state !== "running") {
-        console.log("Audio context not running. Waiting for interaction...");
-        return;
-    }
+    if (!audioStarted) return; // Don't play notes until AudioContext is active
 
     const duration = `${60 / tempo}s`; // Use tempo for note duration
     leadSynth.triggerAttackRelease(note, duration);
@@ -137,14 +136,19 @@ noteButtons.forEach((button, index) => {
 
 // Mobile audio activation
 document.getElementById("enable-audio").addEventListener("click", () => {
-    Tone.start().then(() => {
-        console.log("Audio context started!");
-        alert("Audio is ready! Press keys or use buttons to play.");
-    }).catch((err) => {
-        console.error("Error starting audio:", err);
-        alert("Failed to start audio context.");
-    });
+    if (!audioStarted) {
+        Tone.start().then(() => {
+            audioStarted = true; // Mark AudioContext as active
+            console.log("Audio context started!");
+            alert("Audio is ready! Press keys or use buttons to play.");
+            visualize(); // Start visualization after AudioContext is active
+        }).catch((err) => {
+            console.error("Error starting audio:", err);
+            alert("Failed to start audio context.");
+        });
+    }
 });
+
 
 // Start the visualization loop
 visualize();
