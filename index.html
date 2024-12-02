@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8-Bit Audio Visualizer</title>
+    <style>
+        canvas {
+            display: block;
+            margin: 20px auto;
+            background: black;
+            border: 1px solid white;
+        }
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            color: white;
+            background: #222;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .note-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .note-button {
+            background-color: #444;
+            color: white;
+            border: 1px solid white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .note-button:hover {
+            background-color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>8-Bit Audio Visualizer</h1>
+    <p>Press keys (A, S, D, F, G, H, J, K) or use buttons to play notes!</p>
+    <button id="enable-audio">Enable Audio</button>
+    <canvas id="visualizer"></canvas>
+    
+    <!-- Scale Selector -->
+    <div class="controls">
+        <label for="scale-selector">Select Scale: </label>
+        <select id="scale-selector">
+            <option value="major">Major</option>
+            <option value="minor">Minor</option>
+            <option value="pentatonic">Pentatonic</option>
+            <option value="chromatic">Chromatic</option>
+        </select>
+    </div>
+
+    <!-- Tempo Slider -->
+    <div class="controls">
+        <label for="tempo-slider">Tempo: </label>
+        <input type="range" id="tempo-slider" min="40" max="200" value="120">
+        <span id="tempo-value">120 BPM</span>
+    </div>
+
+    <!-- On-screen Note Buttons -->
+    <div class="note-buttons">
+        <button class="note-button" data-note="C4">C</button>
+        <button class="note-button" data-note="D4">D</button>
+        <button class="note-button" data-note="E4">E</button>
+        <button class="note-button" data-note="F4">F</button>
+        <button class="note-button" data-note="G4">G</button>
+        <button class="note-button" data-note="A4">A</button>
+        <button class="note-button" data-note="B4">B</button>
+        <button class="note-button" data-note="C5">C5</button>
+    </div>
+
+    <!-- Link to Tone.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.37/Tone.js"></script>
+    <!-- Link to your JavaScript file -->
+    <script src="./app.js"></script>
+</body>
+</html>
