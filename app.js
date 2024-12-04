@@ -40,7 +40,6 @@ const scales = {
 // State variables
 let currentScale = scales.major;
 let tempo = 120;
-let audioStarted = false; // Track if AudioContext has been started
 
 // Update tempo display and handle tempo changes
 const tempoSlider = document.getElementById("tempo-slider");
@@ -50,21 +49,34 @@ tempoSlider.addEventListener("input", (e) => {
     tempoValueDisplay.textContent = `${tempo} BPM`;
 });
 
-// Circular waveform visualization
+function getRandomColor() {
+    // Generate a random color in hexadecimal format
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
 function visualize() {
-    if (!audioStarted) return; // Wait until AudioContext is active
     requestAnimationFrame(visualize);
 
     // Get waveform data from the analyser
     const waveform = analyser.getValue();
 
+    // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = "white";
+
+    // Use a random color for each frame
+    ctx.strokeStyle = getRandomColor();
     ctx.lineWidth = 2;
 
     // Translate to the center of the canvas
+    ctx.save(); // Save the current state before translating
     ctx.translate(canvas.width / 2, canvas.height / 2);
 
+    // Begin drawing the circular waveform
     ctx.beginPath();
     for (let i = 0; i < waveform.length; i++) {
         const angle = (i / waveform.length) * 2 * Math.PI;
@@ -82,8 +94,9 @@ function visualize() {
     ctx.stroke();
 
     // Reset transformation
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.restore();
 }
+
 
 // Utility function to map a value
 function map(value, inMin, inMax, outMin, outMax) {
@@ -92,7 +105,10 @@ function map(value, inMin, inMax, outMin, outMax) {
 
 // Play a note
 function playNote(note) {
-    if (!audioStarted) return; // Don't play notes until AudioContext is active
+    if (Tone.context.state !== "running") {
+        console.log("Audio context not running. Waiting for interaction...");
+        return;
+    }
 
     const duration = `${60 / tempo}s`; // Use tempo for note duration
     leadSynth.triggerAttackRelease(note, duration);
@@ -136,19 +152,14 @@ noteButtons.forEach((button, index) => {
 
 // Mobile audio activation
 document.getElementById("enable-audio").addEventListener("click", () => {
-    if (!audioStarted) {
-        Tone.start().then(() => {
-            audioStarted = true; // Mark AudioContext as active
-            console.log("Audio context started!");
-            alert("Audio is ready! Press keys or use buttons to play.");
-            visualize(); // Start visualization after AudioContext is active
-        }).catch((err) => {
-            console.error("Error starting audio:", err);
-            alert("Failed to start audio context.");
-        });
-    }
+    Tone.start().then(() => {
+        console.log("Audio context started!");
+        alert("Audio is ready! Press keys or use buttons to play.");
+    }).catch((err) => {
+        console.error("Error starting audio:", err);
+        alert("Failed to start audio context.");
+    });
 });
-
 
 // Start the visualization loop
 visualize();
